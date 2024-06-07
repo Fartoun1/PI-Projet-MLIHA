@@ -1,8 +1,0 @@
-# Temporary files/folders
-.vscode
-npm-debug.log
-
-# Permanent files/folders
-node_modules
-Dockerfile
-.dockerignore
