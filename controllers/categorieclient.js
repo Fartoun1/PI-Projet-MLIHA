@@ -48,7 +48,7 @@ export async function getMany(req, res) {
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
-
+}
 /**
  * Mettre à jour plusieurs documents
  * Remarque : renommez putOnce par putAll
