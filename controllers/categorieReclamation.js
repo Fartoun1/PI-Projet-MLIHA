@@ -2,7 +2,7 @@ import CategorieReclamation from '../models/categorieReclamation.js';
 
 export function getAll(req, res) {
     CategorieReclamation.find({})
-    .select("_id idReclamation description")
+    .select("_id libelleCategorie description")
     .exec()
     .then(categorieReclamations => {
         res.status(200).json(categorieReclamations);
