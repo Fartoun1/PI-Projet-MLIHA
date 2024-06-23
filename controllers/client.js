@@ -101,6 +101,7 @@ export async function getMany(req, res) {
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
+}
 
 // Fonction pour filtrer les clients par région
 export async function filterByRegion(req, res) {
