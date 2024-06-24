@@ -258,3 +258,38 @@ export async function exportClientsToPDF(req, res) {
     }
 }
 
+
+export async function getClientStatistics(req, res) {
+    try {
+        const stats = await Client.aggregate([
+            {
+                $group: {
+                    _id: '$categorieClientId', // Grouper par categorieClientId
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $lookup: {
+                    from: 'categorieclients', // Le nom de la collection des catégories clients
+                    localField: '_id',
+                    foreignField: '_id',
+                    as: 'categorieClient'
+                }
+            },
+            {
+                $unwind: '$categorieClient'
+            },
+            {
+                $project: {
+                    _id: 0,
+                    categorieClientId: '$_id',
+                    count: 1,
+                    libelleCatCl: '$categorieClient.libelleCatCl'
+                }
+            }
+        ]);
+        res.json(stats);
+    } catch (error) {
+        res.status(500).send(error);
+    }
+}
