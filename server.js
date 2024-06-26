@@ -19,9 +19,9 @@ mongoose
   .then(() => { console.log(`Connected to ${databaseName}`); })
   .catch(err => { console.log(err);   });
 
-//------ ( definir les routes) 
+//definir les routes -----------------------
 
-app.use(express.json());          // Middleware pour analyser le corps des requêtes JSON
+app.use(express.json()); // Middleware pour analyser le corps des requêtes JSON
 app.use(morgan('dev'));
 app.use(cors());
 app.use("/User", userRoutes);
