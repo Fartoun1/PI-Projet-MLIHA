@@ -20,6 +20,10 @@ const achatScehma = new Schema(
       type: Number,
       required: true,
     },
+    type: {
+      type: String,
+      enum: ["panier", "commande"],
+    },
   },
   {
     timestamps: true,
