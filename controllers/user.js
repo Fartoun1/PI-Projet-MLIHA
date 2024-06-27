@@ -6,7 +6,14 @@ import nodemailer from 'nodemailer';
 import crypto from 'crypto';
 
 
-
+// ------> CRUD USER
+// Ajout d'un utilisateur
+export const addOnce = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) { return res.status(400).json(errors.array());
+  }
+  await createUser(req, res);
+}; 
 export function getAll(req,res){
 
     User.find({})
@@ -22,7 +29,6 @@ export function getAll(req,res){
                 maticuleFiscal:docs[i].maticuleFiscal,
                 email: docs[i].email,
                 motPasse: docs[i].motPasse,
-                motPassH:docs[i].motPassH,
                 address: docs[i].address,
                 mobile : docs[i].mobile,
                 role: docs[i].role
@@ -97,9 +103,9 @@ export function deleteOnce(req, res)
 }
 
 
-// Fonction pour créer un utilisateur
+//------X  Fonction pour créer un utilisateur
 const createUser = async (req, res) => {
-  const { nom, prenom, entreprise, matriculeFiscal, email, motPasse, motPassH, address, mobile, role } = req.body;
+  const { nom, prenom, entreprise, matriculeFiscal, email, motPasse, address, mobile, role } = req.body;
   if ( !email || !motPasse ) {
     return res.status(400).json({ message: 'Missing required fields' });}
 
@@ -111,27 +117,21 @@ const createUser = async (req, res) => {
 
       const hashedPassword = await bcrypt.hash(motPasse, 12);
 
-      const newUser = new User({ nom, prenom, entreprise, matriculeFiscal, email, motPasse, motPassH:hashedPassword, address, mobile, role });
+      const newUser = new User({ nom, prenom, entreprise, matriculeFiscal, email, motPasse:hashedPassword, address, mobile, role:"admin" });
       const savedUser = await newUser.save();
 
       res.status(201).json(savedUser);
   } catch (err) {res.status(500).json({ error: err.message }); }
 };
 
-// Inscription par l'utilisteur 
+// SIGNUP
 export const signUp = async (req, res) => {
   await createUser(req, res);
 };
 
-// Ajout d'un utilisateur
-export const addOnce = async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) { return res.status(400).json(errors.array());
-  }
-  await createUser(req, res);
-}; 
 
 
+//  LOGIN
 export const signIn = async (req, res) => {
     const { email, motPasse } = req.body;
 
@@ -139,18 +139,36 @@ export const signIn = async (req, res) => {
         const existingUser = await User.findOne({ email });
         if (!existingUser) return res.status(404).json({ message: 'User not found' });
 
+        console.log('Stored password:', existingUser.motPasse);
+
         const isPasswordCorrect = await bcrypt.compare(motPasse, existingUser.motPasse);
         if (!isPasswordCorrect) return res.status(400).json({ message: 'Invalid mot de passe' });
 
         const token = jwt.sign({ email: existingUser.email, id: existingUser._id }, 'secret', { expiresIn: '1h' });
 
-        res.status(200).json({message:'Connexion réussie'});
-        //json({ result: existingUser, token });
+        res.status(200).json({ result: existingUser, token });
     } 
-    catch (err) { res.status(500).json({ error: err.message });
+    catch (err) { 
+      console.error(err);
+      res.status(500).json({ error: err.message });
     }
 };
+export const getUserSession = async (req, res) => {
+  try {
+      const token = req.headers.authorization.split(" ")[1];
+      const decodedData = jwt.verify(token, secret);
 
+      const user = await User.findById(decodedData.id);
+      if (!user) {
+          return res.status(404).json({ message: 'User not found' });
+      }
+
+      res.status(200).json(user);
+  } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Something went wrong', error: err.message });
+  }
+};
   
 // Create a transporter object
 const transporter = nodemailer.createTransport({
@@ -163,7 +181,7 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-  export const forgetPassword = async (req, res) => {
+export const forgetPassword = async (req, res) => {
 
     const { email } = req.body;
   
@@ -202,7 +220,7 @@ const transporter = nodemailer.createTransport({
   }
   };
 
-  export const resetPassword = async (req, res) => {
+export const resetPassword = async (req, res) => {
     const { email, code, newPassword } = req.body;
 
     try {
