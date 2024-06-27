@@ -1,7 +1,7 @@
 import express from 'express';
 
 import { getAll, addOnce, getOnce,
-    putAll, patchOnce, deleteOnce } from '../controllers/categorieclient.js';
+    putAll, patchOnce, deleteOnce, getMany } from '../controllers/categorieclient.js';
 
 const router = express.Router();
 
@@ -18,6 +18,7 @@ const router = express.Router();
 //   .delete(deleteOnce);
 
 router.post('/', addOnce);
+router.get('/', getMany);
 router.get('/:id', getOnce);
 router.delete('/:id', deleteOnce);
 router.patch('/:id', patchOnce);

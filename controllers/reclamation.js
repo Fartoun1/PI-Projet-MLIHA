@@ -1,4 +1,6 @@
 import Reclamation from '../models/reclamation.js';
+import nodemailer from 'nodemailer';
+
 
 export function getAll(req, res) {
   Reclamation.aggregate([
@@ -79,6 +81,9 @@ export function addOnce(req, res) {
       dateReclamation: req.body.dateReclamation,
       priorite: req.body.priorite,
       statut_rec: req.body.statut_rec,
+      notes: req.body.notes,
+      satisfaction: req.body.satisfaction,
+      notification: req.body.notification,
       image: `${req.protocol}://${req.get("host")}/img/${req.file.filename}`,
     })
       .then((newReclamation) => {
@@ -88,6 +93,9 @@ export function addOnce(req, res) {
           dateReclamation: newReclamation.dateReclamation,
           priorite: newReclamation.priorite,
           statut_rec: newReclamation.statut_rec,
+          notes: req.body.notes,
+          satisfaction: req.body.satisfaction,
+          notification: req.body.notification,
           image: newReclamation.image,
         });
       })
@@ -101,13 +109,24 @@ export function addOnce(req, res) {
 export async function getOnce(req, res) {
 
     try {
-        const reclamation = await Reclamation.findOne({"idClient": req.params.idClient})
+        const reclamation = await Reclamation.find({"idClient": req.params.idClient})
           .exec();
         res.status(200).json(reclamation);
       } catch (e) {
         res.status(500).json(e.message);
       }
 }
+
+export async function getReclamation(req, res) {
+      try {
+        const reclamation = await Reclamation.findOne({"_id": req.params.id})
+          .exec();
+        res.status(200).json(reclamation);
+      } catch (e) {
+        res.status(500).json(e.message);
+      }
+}
+
 
 export async function updateOne(req, res) {
     try {
@@ -149,7 +168,37 @@ export async function updateOne(req, res) {
     }
   }
 
-  
+// Create a transporter object
+const transporter = nodemailer.createTransport({
+  host: 'sandbox.smtp.mailtrap.io',
+  port: 587,
+  secure: false, // use TLS
+  auth: {
+    user: 'ee4b7621150c83',
+    pass: '2c49fd7b2d4cd7',
+  }
+});
 
-  
-  
+export async function sendEmail(req, res) {
+  try {
+    const mailOptions = {
+      to: req.body.email,
+      from: 'op116@yahoo.fr',
+      subject: 'Notification Reclamation',
+      text: `You are receiving this because you (or someone else) have requested the Reclamation check your account.\n\n`
+    };
+
+    transporter.sendMail(mailOptions, (err, info) => {
+      if (err) {
+        console.error('Error sending email:', err); // Improved logging
+        return res.status(500).json({ message: 'Error sending email', error: err.message });
+      }
+      console.log('Email sent:', info.response); // Log successful email sending
+      res.status(200).json({ message: 'Recovery email sent' });
+    });
+
+  } catch (e) {
+    console.error('Error in sendEmail function:', e); // Log any unexpected errors
+    res.status(500).json({ message: e.message });
+  }
+}

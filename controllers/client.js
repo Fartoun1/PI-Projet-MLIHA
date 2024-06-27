@@ -91,6 +91,18 @@ export async function patchOnce(req, res) {
     }
 }
 
+export async function getMany(req, res) {
+    try {
+        const client = await Client.find();
+        if (!client) {
+            return res.status(404).json({ message: 'Client not found' });
+        }
+        res.status(200).json(client);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+}
+
 // Fonction pour filtrer les clients par région
 export async function filterByRegion(req, res) {
     try {
@@ -243,5 +255,41 @@ export async function exportClientsToPDF(req, res) {
         doc.end();
     } catch (err) {
         res.status(500).json({ error: err.message });
+    }
+}
+
+
+export async function getClientStatistics(req, res) {
+    try {
+        const stats = await Client.aggregate([
+            {
+                $group: {
+                    _id: '$categorieClientId', // Grouper par categorieClientId
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $lookup: {
+                    from: 'categorieclients', // Le nom de la collection des catégories clients
+                    localField: '_id',
+                    foreignField: '_id',
+                    as: 'categorieClient'
+                }
+            },
+            {
+                $unwind: '$categorieClient'
+            },
+            {
+                $project: {
+                    _id: 0,
+                    categorieClientId: '$_id',
+                    count: 1,
+                    libelleCatCl: '$categorieClient.libelleCatCl'
+                }
+            }
+        ]);
+        res.json(stats);
+    } catch (error) {
+        res.status(500).send(error);
     }
 }

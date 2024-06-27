@@ -38,6 +38,17 @@ export function getOnce(req, res) {
     });
 }
 
+export async function getMany(req, res) {
+    try {
+        const categorieclient = await Categorieclient.find();
+        if (!categorieclient) {
+            return res.status(404).json({ message: 'Client not found' });
+        }
+        res.status(200).json(categorieclient);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+}
 /**
  * Mettre à jour plusieurs documents
  * Remarque : renommez putOnce par putAll

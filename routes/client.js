@@ -1,9 +1,10 @@
 import express from 'express';
-import { addOnce, getOnce, deleteOnce, patchOnce, filterByRegion, calculateAnciennete, searchClients, filterByCategorieClient, exportClientsToPDF, sendPersonalizedMessages } from '../controllers/client.js';
+import { addOnce, getOnce, deleteOnce, patchOnce, filterByRegion, calculateAnciennete, searchClients, filterByCategorieClient, exportClientsToPDF, sendPersonalizedMessages, getMany } from '../controllers/client.js';
 
 const router = express.Router();
 
 router.post('/', addOnce);
+router.get('/', getMany);
 router.get('/search', searchClients);  // Ajoutez cette ligne pour la recherche multiple
 router.get('/:id', getOnce);
 router.delete('/:id', deleteOnce);

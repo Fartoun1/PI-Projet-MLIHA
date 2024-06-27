@@ -28,8 +28,7 @@ const reclamationSchema = new Schema({
         default: Date.now
     },
     statut_rec: {
-        type: String,
-        required: [true, 'statut reclamation is required'],
+        type: String
     },
     satisfaction: {
         type: String
