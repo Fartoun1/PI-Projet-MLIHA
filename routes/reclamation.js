@@ -14,14 +14,13 @@ router
 
 router
   .route('/:idClient')
-  .put(multer("image", 5 * 1024 * 1024), 
-    updateOne)
+  .put(multer("image", 5 * 1024 * 1024), updateOne)
   .get(getOnce);
 
   router
   .route('/:id')
   .delete(deleteOne)
-  .patch(updateField);
+  .patch(multer("image", 5 * 1024 * 1024), updateField);
 
 router
   .route('/rec/:id')

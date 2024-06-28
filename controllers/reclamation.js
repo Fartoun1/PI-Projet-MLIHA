@@ -128,10 +128,40 @@ export async function getReclamation(req, res) {
 }
 
 
+// Updated updateOne function to handle file uploads and update form data
+export async function updateOne(req, res) {
+  try {
+    const updateData = { ...req.body };
+    
+    // Check if a file is uploaded
+    if (req.file) {
+      updateData.image = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
+    }
+
+    console.log("----------", req.params.idClient);
+
+    const reclamation = await Reclamation.findByIdAndUpdate(
+      req.params.idClient,
+      updateData,
+      { new: true }  // Return the updated document
+    );
+
+    if (!reclamation) {
+      return res.status(404).json({ message: 'Reclamation not found' });
+    }
+
+    res.status(200).json({ message: 'Updated successfully', reclamation });
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+}
+
+
+/*
 export async function updateOne(req, res) {
     try {
       const reclamation = await Reclamation.findByIdAndUpdate(
-        { id: req.params.id },
+        { _id: req.params.id },
         req.body
       );
       res.status(200).json({ message: "updated successfully", reclamation });
@@ -139,6 +169,7 @@ export async function updateOne(req, res) {
       res.status(500).json(e.message);
     }
   }
+  */
   
   export async function deleteOne(req, res) {
     try {
