@@ -135,7 +135,7 @@ export async function updateOne(req, res) {
     
     // Check if a file is uploaded
     if (req.file) {
-      updateData.image = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
+      updateData.image = `${req.protocol}://${req.get('host')}/img/${req.file.filename}`;
     }
 
     console.log("----------", req.params.idClient);
