@@ -138,8 +138,6 @@ export async function updateOne(req, res) {
       updateData.image = `${req.protocol}://${req.get('host')}/img/${req.file.filename}`;
     }
 
-    console.log("----------", req.params.idClient);
-
     const reclamation = await Reclamation.findByIdAndUpdate(
       req.params.idClient,
       updateData,
