@@ -1,4 +1,3 @@
-import carte from "../models/carte.js";
 import Cart from "../models/carte.js";
 import Produit from "../models/produit.js";
 
