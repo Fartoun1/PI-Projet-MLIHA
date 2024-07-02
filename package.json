@@ -1,20 +1,40 @@
 {
-  "name": "projet",
+  "name": "js_cs_2324",
   "version": "1.0.0",
-  "description": "",
+  "description": "JS-CS exercices",
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
     "dev": "nodemon server.js"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "NodeJS",
+    "JavaScript",
+    "CINFO2S"
+  ],
+  "author": "Zied Touahri",
   "license": "ISC",
   "dependencies": {
+    "@types/socket.io": "^3.0.2",
+    "bcryptjs": "^2.4.3",
+    "cloudinary": "^2.2.0",
+    "cors": "^2.8.5",
+    "cron": "^3.1.7",
+    "crypto": "^1.0.1",
+    "dotenv": "^16.4.5",
+    "exceljs": "^4.4.0",
     "express": "^4.19.2",
+    "express-validator": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.3.5",
-    "nodemo": "^1.0.0"
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
+    "node-cron": "^3.0.3",
+    "nodemailer": "^6.9.13",
+    "nodemon": "^3.1.2",
+    "pdfkit": "^0.15.0",
+    "socket.io": "^4.7.5",
+    "twilio": "^5.1.0"
   }
 }
