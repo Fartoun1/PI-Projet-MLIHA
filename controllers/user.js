@@ -39,12 +39,17 @@ export function getAll(req,res){
           .catch((err) => { res.status(500).json({ error: err });     });
       }
 
-export function getOnce (req,res){
-
+export function getOnce(req, res) {
   User.findById(req.params.id)
-  .then((doc)=> {res.status(200).json(doc);})
-  .catch ((err) => {res.status(500).json({error :err });})
+    .select('nom prenom entreprise matriculeFiscal email address mobile -_id')
+    .then(doc => {
+      res.status(200).json(doc);
+    })
+    .catch(err => {
+      res.status(500).json({ error: err });
+    });
 }
+
 
 export function putOnce (req,res){
   let newUser ={};
