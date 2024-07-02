@@ -41,7 +41,7 @@ export function getAll(req,res){
 
 export function getOnce(req, res) {
   User.findById(req.params.id)
-    .select('nom prenom entreprise matriculeFiscal email address mobile -_id')
+    .select('nom prenom entreprise matriculeFiscal address mobile -_id')
     .then(doc => {
       res.status(200).json(doc);
     })
