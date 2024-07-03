@@ -3,8 +3,8 @@ import CategorieProduit from "../models/categorieProduit.js";
 export function addOnce(req, res) {
   try {
     const categorieProduit = CategorieProduit.create({
-      nomCategorie: req.body.nom.toLowerCase(),
-      descriptionCategorie: req.body.description,
+      nomCategorie: req.body.nomCategorie.toLowerCase(),
+      descriptionCategorie: req.body.descriptionCategorie,
     });
     res.status(200).json({ message: "added successfully", categorieProduit });
   } catch (e) {
@@ -15,7 +15,7 @@ export function addOnce(req, res) {
 export async function getAll(req, res) {
   try {
     const categorie = await CategorieProduit.find();
-    res.status(200).json({ categorie });
+    res.status(200).json(categorie);
   } catch (e) {
     res.status(500).json(e.message);
   }
@@ -24,7 +24,7 @@ export async function getAll(req, res) {
 export async function getOnce(req, res) {
   try {
     const categorie = await CategorieProduit.findById({ _id: req.params.id });
-    res.status(200).json({ categorie });
+    res.status(200).json(categorie);
   } catch (e) {
     res.status(500).json(e.message);
   }
@@ -35,8 +35,8 @@ export async function updateOne(req, res) {
     const categorie = await CategorieProduit.findByIdAndUpdate(
       { _id: req.params.id },
       {
-        nomCategorie: req.body.nom.toLowerCase(),
-        descriptionCategorie: req.body.description,
+        nomCategorie: req.body.nomCategorie.toLowerCase(),
+        descriptionCategorie: req.body.descriptionCategorie,
       }
     );
     res.status(200).json({ message: "update successfully", categorie });

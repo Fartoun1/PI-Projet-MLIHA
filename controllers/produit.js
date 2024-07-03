@@ -15,10 +15,10 @@ export async function addOnce(req, res) {
       } else {
         const produit = await Produit.create({
           categorie: req.body.categorie,
-          nomProduit: req.body.nom.toLowerCase(),
+          nomProduit: req.body.nomProduit.toLowerCase(),
           prix: req.body.prix,
           quantite: req.body.quantite,
-          descriptionProduit: req.body.description,
+          descriptionProduit: req.body.descriptionProduit,
           //image: `${req.protocol}://${req.get("host")}/img/${req.file.filename}`,
           image: result.secure_url,
         });
@@ -50,11 +50,21 @@ export async function getOne(req, res) {
   }
 }
 
+export async function getProductByCategorie(req, res) {
+  try {
+    const produits = await Produit.find({ categorie: req.params.id })
+      .populate("categorie")
+      .exec();
+    res.status(200).json(produits);
+  } catch (e) {
+    res.status(500).json({ err: e.message });
+  }
+}
+
 export async function updateOne(req, res) {
   try {
-    const categorie = await categorieProduit.findById({
-      _id: req.body.categorie,
-    });
+    console.log(req.body.nomProduit);
+    const categorie = await categorieProduit.findById(req.body.categorie);
     if (!categorie) {
       return res.status(404).json({ message: "categorie not found" });
     } else {
@@ -66,16 +76,18 @@ export async function updateOne(req, res) {
           { _id: req.params.id },
           {
             categorie: req.body.categorie,
-            nomProduit: req.body.nom.toLowerCase(),
+            nomProduit: req.body.nomProduit.toLowerCase(),
             prix: req.body.prix,
             quantite: req.body.quantite,
-            descriptionProduit: req.body.description,
+            descriptionProduit: req.body.descriptionProduit,
             image: result.secure_url,
           }
         );
-        res
-          .status(200)
-          .json({ message: "product updated successfully", produit });
+        console.log({ produit });
+        res.status(200).json({
+          message: "product updated successfully",
+          produit,
+        });
       }
     }
   } catch (e) {

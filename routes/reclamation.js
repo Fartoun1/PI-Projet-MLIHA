@@ -1,4 +1,4 @@
-import express from 'express';
+import express from "express";
 
 import multer from "../middlewares/multer-config-local.js";
 
@@ -8,22 +8,19 @@ from '../controllers/reclamation.js';
 const router = express.Router();
 
 router
-  .route('/')
-  .post(
-    multer("image", 5 * 1024 * 1024),  
-    addOnce)
+  .route("/")
+  .post(multer("image", 5 * 1024 * 1024), addOnce)
   .get(getAll);
 
 router
   .route('/:idClient')
-  .put(multer("image", 5 * 1024 * 1024), 
-    updateOne)
+  .put(multer("image", 5 * 1024 * 1024), updateOne)
   .get(getOnce);
 
   router
   .route('/:id')
   .delete(deleteOne)
-  .patch(updateField);
+  .patch(multer("image", 5 * 1024 * 1024), updateField);
 
 router
   .route('/rec/:id')

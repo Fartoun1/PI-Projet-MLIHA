@@ -86,6 +86,28 @@ export async function getOnce(req, res) {
   }
 }
 
+export async function getOnceByIdClient(req, res) {
+  try {
+    const idClient = parseInt(req.params.idClient, 10); // Conversion en entier
+
+    const achats = await Achat.aggregate([
+      { $unwind: "$commande" },
+      { $match: { "commande.idClient": idClient } },
+      {
+        $group: {
+          _id: "$_id",
+          commande: { $push: "$commande" },
+          somme: { $first: "$somme" },
+        },
+      },
+    ]);
+
+    res.status(200).json(achats);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+}
+
 export async function updateOne(req, res) {
   try {
     let newAchat;

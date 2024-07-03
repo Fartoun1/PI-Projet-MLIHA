@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 const { Schema, model } = mongoose;
-
+ 
 const clientSchema = new Schema({
     nom: {
         type: String,
@@ -22,7 +22,7 @@ const clientSchema = new Schema({
     addressePostal: {
         type: String,
         required: [true, 'L\'adresse postale est requise'],
-        minlength: [10, 'L\'adresse postale doit contenir au moins 10 caractères'],
+        minlength: [5, 'L\'adresse postale doit contenir au moins 10 caractères'],
         maxlength: [200, 'L\'adresse postale ne peut pas dépasser 200 caractères']
     },
     telPortable: {
@@ -59,12 +59,12 @@ const clientSchema = new Schema({
     niveauSatisfaction: {
         type: Number,
         required: [true, 'Le niveau de satisfaction est requis'],
-        min: [1, 'Le niveau de satisfaction doit être au moins 1'],
+        min: [0, 'Le niveau de satisfaction doit être au moins 0'],
         max: [5, 'Le niveau de satisfaction ne peut pas dépasser 5']
     },
     statutCompte: {
         type: String,
-        required: [true, 'Le statut du compte est requis'],
+        // required: [true, 'Le statut du compte est requis'],
         enum: ['actif', 'inactif', 'suspendu']
     },
     region: {
@@ -75,7 +75,7 @@ const clientSchema = new Schema({
     },
     pointFidelite: {
         type: Number,
-        required: true,
+        // required: true,
         default: 100
     },
     categorieClientId: {
@@ -84,5 +84,5 @@ const clientSchema = new Schema({
         required: [true, 'L\'ID de la catégorie client est requis']
     }
 });
-
+ 
 export default model("Client", clientSchema);

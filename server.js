@@ -1,4 +1,8 @@
 import express from "express";
+
+import http from 'http'; // Import the HTTP module
+import { Server as SocketIOServer } from 'socket.io'; // Import the Socket.IO server
+
 import mongoose from "mongoose";
 import morgan from 'morgan'; // Importer morgan
 import cors from 'cors'; // Importer cors
@@ -36,7 +40,8 @@ mongoose
     console.log(err);
   });
 
-
+  const server = http.createServer(app); // Create an HTTP server
+  const io = new SocketIOServer(server); // Initialize a new instance of Socket.IO by passing the HTTP server
 
 
 app.use(cors()); // Utiliser CORS
@@ -68,9 +73,30 @@ app.use("/User", userRoutes);
 app.use(notFoundError);
 app.use(errorHandler);
 
+
+// Socket.IO configuration
+io.on('connection', (socket) => {
+  console.log('A user connected:', socket.id);
+
+  // Handle disconnection
+  socket.on('disconnect', () => {
+    console.log('User disconnected:', socket.id);
+  });
+
+  // Handle custom events
+  socket.on('message', (msg) => {
+    console.log('Message received:', msg);
+    // Broadcast the message to all connected clients
+    io.emit('message', msg);
+  });
+});
+
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}/`);
 });
+
+
+
 
 // Schedule the sendPersonalizedMessages function to run daily at midnight
 cron.schedule('0 0 * * *', () => {
