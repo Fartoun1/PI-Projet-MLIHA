@@ -12,7 +12,9 @@ const userSchema = new Schema(
         motPasse: { type: String, required :true        },
         address: {  type: String,  },
         mobile:{   type:Number,     },
-        role:{type: String, },      
+        role: { type: String, default: 'user' },
+        verificationCode: { type: String },
+        isVerified: { type: Boolean, default: false },     
         resetPasswordToken: { type: String },
         resetPasswordExpires: { type: Date }
 

@@ -50,7 +50,7 @@ export function putOnce (req,res){
   let newUser ={};
   if (req.file == undefined )
     {
-      newUser= {
+    newUser= {
     nom: req.body.nom,
     prenom : req.body.prenom,
     entreprise : req.body.entreprise,
@@ -61,21 +61,20 @@ export function putOnce (req,res){
     address : req.body.address,
     mobile : req.body.mobile,
     role: req.body.role
-
   }
 }
 else  {
       newUser= {
-      nom: req.body.nom,
-      prenom : req.body.prenom,
-      entreprise : req.body.entreprise,
-      matriculeFiscal : req.body.matriculeFiscal,
-      email : req.body.email,
-      motPasse :req.body.motPasse,
-      motPassH:req.body.motPassH,
-      address : req.body.address,
-      mobile : req.body.mobile,
-      role: req.body.role
+            nom: req.body.nom,
+            prenom : req.body.prenom,
+            entreprise : req.body.entreprise,
+            matriculeFiscal : req.body.matriculeFiscal,
+            email : req.body.email,
+            motPasse :req.body.motPasse,
+            motPassH:req.body.motPassH,
+            address : req.body.address,
+            mobile : req.body.mobile,
+            role: req.body.role
   
   }
 }
@@ -107,31 +106,77 @@ export function deleteOnce(req, res)
 const createUser = async (req, res) => {
   const { nom, prenom, entreprise, matriculeFiscal, email, motPasse, address, mobile, role } = req.body;
   if ( !email || !motPasse ) {
-    return res.status(400).json({ message: 'Missing required fields' });}
+          return res.status(400).json({ message: 'Missing required fields' });
+      }
 
   try {
-      const existingUser = await User.findOne({ email });       //
+      const existingUser = await User.findOne({ email });  
       if (existingUser) {
-          return res.status(400).json({ message: 'Email already in use' });
+          return res.status(400).json({ message: 'Email deja utilisée' });
       }
 
       const hashedPassword = await bcrypt.hash(motPasse, 12);
+      const verificationCode = Math.floor(1000 + Math.random() * 9000).toString();
 
-      const newUser = new User({ nom, prenom, entreprise, matriculeFiscal, email, motPasse:hashedPassword, address, mobile, role:"admin" });
-      const savedUser = await newUser.save();
+      const newUser = new User({ 
+        nom, 
+        prenom, 
+        entreprise, 
+        matriculeFiscal, 
+        email, 
+        motPasse:hashedPassword, 
+        address, 
+        mobile, 
+        role:"admin",
+        verificationCode, 
+        isVerified: false 
+      });
+      
+        const savedUser = await newUser.save();
 
-      res.status(201).json(savedUser);
-  } catch (err) {res.status(500).json({ error: err.message }); }
+        // Envoyer l'email de vérification
+        const mailOptions = {
+          to: savedUser.email,
+          from: 'mliha@gmail.com',
+          subject: 'Vérification de votre compte',
+          text: `Votre code de vérification est: ${verificationCode}`
+        };
+        transporter.sendMail(mailOptions, (err, response) => {
+          if (err) {
+            return res.status(500).json({ message: 'Error sending email', error: err });
+          }
+          res.status(201).json({ message: 'Account created. Verification code sent to email.', user: savedUser });
+        });
+
+       } 
+       catch (err) {res.status(500).json({ error: err.message }); }
 };
 
+export const verifyUser = async (req, res) => {
+  const { email, code } = req.body;
+
+  try {
+    const user = await User.findOne({ email, verificationCode: code });
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid code or email' });
+    }
+
+    user.isVerified = true;
+    user.verificationCode = undefined; // Optional: Remove the code after verification
+
+    await user.save();
+
+    res.status(200).json({ message: 'User verified successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 // SIGNUP
 export const signUp = async (req, res) => {
   await createUser(req, res);
 };
 
-
-
-//  LOGIN
+//  LOGIN+creation token
 export const signIn = async (req, res) => {
     const { email, motPasse } = req.body;
 
@@ -191,9 +236,7 @@ export const forgetPassword = async (req, res) => {
         }
           
         const token = crypto.randomBytes(20).toString('hex'); // Générer un token de réinitialisation
-  
-        // Définir le token et sa date d'expiration
-        user.resetPasswordToken = token;
+        user.resetPasswordToken = token;  // Définir le token et sa date d'expiration
         user.resetPasswordExpires = Date.now() + 3600000; // 1 heure
   
         await user.save();
@@ -202,50 +245,47 @@ export const forgetPassword = async (req, res) => {
         const mailOptions = {
             to: user.email,
             from: 'mliha.bardo@gmail.com',
-            subject: 'Password Reset',
-            text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n
-            Please click on the following link, or paste this into your browser to complete the process:\n\n
-            http://localhost:9090/reset/${token}\n\n
-            If you did not request this, please ignore this and your password will remain unchanged.\n`
-        };
+            subject: 'Changer mot de passe',
+            html: `
+        <p>You are receiving this because you have requested the reset of the password for your account.</p>
+        <p>Please click on the following link, or paste this into your browser to complete the process:</p>
+        <a href="http://localhost:4200/#/change-password/${token}">Reset Password</a>
+      `
+                    };
       
       transporter.sendMail(mailOptions, (err, response) => {
           if (err) { 
-              return res.status(500).json({ message: 'Error sending email', error: err });
+              return res.status(500).json({ message: 'Error envoie email', error: err });
           }
-                      res.status(200).json({ message: 'Recovery email sent' });
+                      res.status(200).json({ message: 'Recovery email envoyer' });
       });
       
-  } catch (err) {     res.status(500).json({ error: err.message });
-  }
+  } catch (err) { res.status(500).json({ error: err.message });  }
   };
 
-export const resetPassword = async (req, res) => {
-    const { email, code, newPassword } = req.body;
 
+  export const resetPassword = async (req, res) => {
+    const { token, newPassword } = req.body;
+    console.log(token, newPassword);
     try {
-        const user = await User.findOne({
-            email,
-            resetPasswordToken: code,
-            resetPasswordExpires: { $gt: Date.now() }
-        });
-
-        if (!user) {
-            return res.status(400).json({ message: 'Invalid code or code has expired' });
-        }
-
-        // Hasher le nouveau mot de passe
-        const hashedPassword = await bcrypt.hash(newPassword, 12);
-
-        // Mettre à jour le mot de passe de l'utilisateur
-        user.motPasse = hashedPassword;
-        user.resetPasswordToken = undefined;
-        user.resetPasswordExpires = undefined;
-
-        await user.save();
-
-        res.status(200).json({ message: 'Password has been reset' });
+      const user = await User.findOne({
+        resetPasswordToken: token,
+        resetPasswordExpires: { $gt: Date.now() }
+      });
+  
+      if (!user) {
+        return res.status(400).json({ message: 'Invalid token or token has expired' });
+      }
+  
+      const hashedPassword = await bcrypt.hash(newPassword, 12);
+      user.motPasse = hashedPassword;
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpires = undefined;
+  
+      await user.save();
+  
+      res.status(200).json({ message: 'Password has been reset' });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+      res.status(500).json({ error: err.message });
     }
-};
+  };
