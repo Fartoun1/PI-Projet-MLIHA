@@ -201,7 +201,7 @@ export const signIn = async (req, res) => {
         const isPasswordCorrect = await bcrypt.compare(motPasse, existingUser.motPasse);
         if (!isPasswordCorrect) return res.status(400).json({ message: 'Invalid mot de passe' });
 
-        const token = jwt.sign({ email: existingUser.email, id: existingUser._id }, 'secret', { expiresIn: '1h' });
+        const token = jwt.sign({ email: existingUser.email, id: existingUser._id, nom: existingUser.nom}, 'secret', { expiresIn: '1h' });
 
         res.status(200).json({ result: existingUser, token });
     } 
@@ -262,6 +262,43 @@ export const forgetPassword = async (req, res) => {
         <p>You are receiving this because you have requested the reset of the password for your account.</p>
         <p>Please click on the following link, or paste this into your browser to complete the process:</p>
         <a href="http://localhost:4200/#/change-password/${token}">Reset Password</a>
+      `
+                    };
+      
+      transporter.sendMail(mailOptions, (err, response) => {
+          if (err) { 
+              return res.status(500).json({ message: 'Error envoie email', error: err });
+          }
+                      res.status(200).json({ message: 'Recovery email envoyer' });
+      });
+      
+  } catch (err) { res.status(500).json({ error: err.message });  }
+  };
+
+  export const fClient = async (req, res) => {
+
+    const { email } = req.body;
+  
+    try {
+        const user = await User.findOne({ email });
+        if (!user) { return res.status(404).json({ message: 'User not found' });
+        }
+          
+        const token = crypto.randomBytes(20).toString('hex'); // Générer un token de réinitialisation
+        user.resetPasswordToken = token;  // Définir le token et sa date d'expiration
+        user.resetPasswordExpires = Date.now() + 3600000; // 1 heure
+  
+        await user.save();
+  
+        // Envoyer l'email de réinitialisation
+        const mailOptions = {
+            to: user.email,
+            from: 'mliha.bardo@gmail.com',
+            subject: 'Changer mot de passe',
+            html: `
+        <p>You are receiving this because you have requested the reset of the password for your account.</p>
+        <p>Please click on the following link, or paste this into your browser to complete the process:</p>
+        <a href="http://localhost:4200/reset-password/${token}">Reset Password</a>
       `
                     };
       

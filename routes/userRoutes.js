@@ -1,7 +1,7 @@
 import express from "express";
 import { body} from 'express-validator';
 import auth  from '../middlewares/auth.js';
-import { addOnce, getAll, getOnce, deleteOnce,putOnce, signIn, signUp, getUserSession,forgetPassword, resetPassword, verifyUser } from '../controllers/user.js';  
+import { addOnce, getAll, getOnce, deleteOnce,putOnce, signIn, signUp, getUserSession,forgetPassword, fClient, resetPassword, verifyUser } from '../controllers/user.js';  
 
 
 // import multer from "../middlewares/multer-config.js";
@@ -51,6 +51,8 @@ router
   router.route("/signin").post(signIn),
   router.get('/session', auth, getUserSession);
   router.route("/forgetpassword").post(forgetPassword),
+  router.route("/forgetPasswordClient").post(fClient)
+  
   router.route("/resetpassword").post(resetPassword);
 
 export default router;
