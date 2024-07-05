@@ -4,69 +4,69 @@ import nodemailer from 'nodemailer';
 
 export function getAll(req, res) {
   Reclamation.aggregate([
-      {
-          $addFields: {
-              statut_rec_order: {
-                  $cond: [
-                      { $eq: ["$statut_rec", "new"] },
-                      1,
-                      {
-                          $cond: [
-                              { $eq: ["$statut_rec", "on hold"] },
-                              2,
-                              3
-                          ]
-                      }
-                  ]
-              },
-              priorite_order: {
-                  $cond: [
-                      { $eq: ["$priorite", "high"] },
-                      1,
-                      {
-                          $cond: [
-                              { $eq: ["$priorite", "medium"] },
-                              2,
-                              3
-                          ]
-                      }
-                  ]
-              }
-          }
-      },
-      {
-          $sort: {
-              statut_rec_order: 1,
-              dateReclamation: -1,
-              priorite_order: 1
-          }
-      },
-      {
-        $project: {
-          _id: 1,
-          idClient: 1,
-          idCategorieReclamation: 1,
-          title: 1,
-          description: 1,
-          priorite: 1,
-          dateReclamation: 1,
-          statut_rec: 1,
-          satisfaction: 1,
-          notes: 1,
-          notification: 1,
-          image: 1
+    {
+      $addFields: {
+        statut_rec_order: {
+          $cond: [
+            { $eq: ["$statut_rec", "new"] },
+            1,
+            {
+              $cond: [
+                { $eq: ["$statut_rec", "on hold"] },
+                2,
+                3
+              ]
+            }
+          ]
+        },
+        priorite_order: {
+          $cond: [
+            { $eq: ["$priorite", "high"] },
+            1,
+            {
+              $cond: [
+                { $eq: ["$priorite", "medium"] },
+                2,
+                3
+              ]
+            }
+          ]
+        }
       }
+    },
+    {
+      $sort: {
+        statut_rec_order: 1,
+        priorite_order: 1,
+        dateReclamation: -1
       }
+    },
+    {
+      $project: {
+        _id: 1,
+        idClient: 1,
+        idCategorieReclamation: 1,
+        title: 1,
+        description: 1,
+        priorite: 1,
+        dateReclamation: 1,
+        statut_rec: 1,
+        satisfaction: 1,
+        notes: 1,
+        notification: 1,
+        image: 1
+      }
+    }
   ])
   .exec()
   .then(reclamations => {
-      res.status(200).json(reclamations);
+    res.status(200).json(reclamations);
   })
   .catch(err => {
-      res.status(500).json(err);
+    res.status(500).json(err);
   });
-  
 }
+
 
 
 

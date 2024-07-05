@@ -160,9 +160,13 @@ const createUser = async (req, res) => {
 export const verifyUser = async (req, res) => {
   const { email, code } = req.body;
 
+  console.log("Received email:", email);
+  console.log("Received code:", code);
+
   try {
     const user = await User.findOne({ email, verificationCode: code });
     if (!user) {
+      console.log("User not found or invalid code");
       return res.status(400).json({ message: 'Invalid code or email' });
     }
 
@@ -170,12 +174,15 @@ export const verifyUser = async (req, res) => {
     user.verificationCode = undefined; // Optional: Remove the code after verification
 
     await user.save();
-
+    
     res.status(200).json({ message: 'User verified successfully' });
   } catch (err) {
+    console.error("Error verifying user:", err);
     res.status(500).json({ error: err.message });
   }
 };
+
+
 // SIGNUP
 export const signUp = async (req, res) => {
   await createUser(req, res);
