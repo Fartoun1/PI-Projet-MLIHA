@@ -44,7 +44,7 @@ export function getAll(req, res) {
     {
       $project: {
         _id: 1,
-        idClient: 1,
+        idUser: 1,
         idCategorieReclamation: 1,
         title: 1,
         description: 1,
@@ -74,7 +74,7 @@ export function getAll(req, res) {
 export function addOnce(req, res) {
 
     Reclamation.create({
-      idClient: req.body.idClient,
+      idUser: req.body.idUser,
       idCategorieReclamation: req.body.idCategorieReclamation,
       title: req.body.title,
       description: req.body.description,
@@ -109,7 +109,8 @@ export function addOnce(req, res) {
 export async function getOnce(req, res) {
 
     try {
-        const reclamation = await Reclamation.find({"idClient": req.params.idClient})
+      console.log(req.params.idUser);
+        const reclamation = await Reclamation.find({"idUser": req.params.idUser})
           .exec();
         res.status(200).json(reclamation);
       } catch (e) {
@@ -139,7 +140,7 @@ export async function updateOne(req, res) {
     }
 
     const reclamation = await Reclamation.findByIdAndUpdate(
-      req.params.idClient,
+      req.params.idUser,
       updateData,
       { new: true }  // Return the updated document
     );
