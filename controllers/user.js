@@ -80,7 +80,6 @@ else  {
             address : req.body.address,
             mobile : req.body.mobile,
             role: req.body.role
-  
   }
 }
 
