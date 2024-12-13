@@ -27,7 +27,6 @@ export const cartController = {
           items: [{ product: idProduit, quantity, status: "panier" }],
           totalAmount: quantity * productInStock.prix,
         });
-        console.log(totalAmount);
       } else {
         const existingItem = cart.items.find(
           (item) =>
@@ -170,6 +169,11 @@ export const cartController = {
       const cart = await Cart.findOne({ user: idClient })
         .populate("items.product")
         .exec();
+      if (!cart) {
+        return res
+          .status(404)
+          .json({ message: "Aucun panier trouvé pour cet utilisateur" });
+      }
       cart.items = cart.items.filter((item) => item.status === "panier");
       console.log(cart);
       res.status(200).json(cart);

@@ -2,10 +2,10 @@ import mongoose, { Schema, model } from "mongoose";
 
 const reclamationSchema = new Schema({
     
-    idClient: {
+    idUser: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
-        ref: 'Client'
+        ref: 'User'
     },
     idCategorieReclamation: {
         type: mongoose.Schema.Types.ObjectId,

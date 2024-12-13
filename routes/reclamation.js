@@ -13,7 +13,7 @@ router
   .get(getAll);
 
 router
-  .route('/:idClient')
+  .route('/:idUser')
   .put(multer("image", 5 * 1024 * 1024), updateOne)
   .get(getOnce);
 

@@ -4,69 +4,69 @@ import nodemailer from 'nodemailer';
 
 export function getAll(req, res) {
   Reclamation.aggregate([
-      {
-          $addFields: {
-              statut_rec_order: {
-                  $cond: [
-                      { $eq: ["$statut_rec", "new"] },
-                      1,
-                      {
-                          $cond: [
-                              { $eq: ["$statut_rec", "on hold"] },
-                              2,
-                              3
-                          ]
-                      }
-                  ]
-              },
-              priorite_order: {
-                  $cond: [
-                      { $eq: ["$priorite", "high"] },
-                      1,
-                      {
-                          $cond: [
-                              { $eq: ["$priorite", "medium"] },
-                              2,
-                              3
-                          ]
-                      }
-                  ]
-              }
-          }
-      },
-      {
-          $sort: {
-              statut_rec_order: 1,
-              dateReclamation: -1,
-              priorite_order: 1
-          }
-      },
-      {
-        $project: {
-          _id: 1,
-          idClient: 1,
-          idCategorieReclamation: 1,
-          title: 1,
-          description: 1,
-          priorite: 1,
-          dateReclamation: 1,
-          statut_rec: 1,
-          satisfaction: 1,
-          notes: 1,
-          notification: 1,
-          image: 1
+    {
+      $addFields: {
+        statut_rec_order: {
+          $cond: [
+            { $eq: ["$statut_rec", "new"] },
+            1,
+            {
+              $cond: [
+                { $eq: ["$statut_rec", "on hold"] },
+                2,
+                3
+              ]
+            }
+          ]
+        },
+        priorite_order: {
+          $cond: [
+            { $eq: ["$priorite", "high"] },
+            1,
+            {
+              $cond: [
+                { $eq: ["$priorite", "medium"] },
+                2,
+                3
+              ]
+            }
+          ]
+        }
       }
+    },
+    {
+      $sort: {
+        statut_rec_order: 1,
+        priorite_order: 1,
+        dateReclamation: -1
       }
+    },
+    {
+      $project: {
+        _id: 1,
+        idUser: 1,
+        idCategorieReclamation: 1,
+        title: 1,
+        description: 1,
+        priorite: 1,
+        dateReclamation: 1,
+        statut_rec: 1,
+        satisfaction: 1,
+        notes: 1,
+        notification: 1,
+        image: 1
+      }
+    }
   ])
   .exec()
   .then(reclamations => {
-      res.status(200).json(reclamations);
+    res.status(200).json(reclamations);
   })
   .catch(err => {
-      res.status(500).json(err);
+    res.status(500).json(err);
   });
-  
 }
+
 
 
 
@@ -74,7 +74,7 @@ export function getAll(req, res) {
 export function addOnce(req, res) {
 
     Reclamation.create({
-      idClient: req.body.idClient,
+      idUser: req.body.idUser,
       idCategorieReclamation: req.body.idCategorieReclamation,
       title: req.body.title,
       description: req.body.description,
@@ -108,24 +108,26 @@ export function addOnce(req, res) {
 
 export async function getOnce(req, res) {
 
-    try {
-        const reclamation = await Reclamation.find({"idClient": req.params.idClient})
-          .exec();
-        res.status(200).json(reclamation);
-      } catch (e) {
-        res.status(500).json(e.message);
-      }
+  try {
+    console.log(req.params.idUser);
+      const reclamation = await Reclamation.find({"idUser": req.params.idUser})
+        .exec();
+      res.status(200).json(reclamation);
+    } catch (e) {
+      res.status(500).json(e.message);
+    }
 }
 
 export async function getReclamation(req, res) {
-      try {
-        const reclamation = await Reclamation.findOne({"_id": req.params.id})
-          .exec();
-        res.status(200).json(reclamation);
-      } catch (e) {
-        res.status(500).json(e.message);
-      }
+  try {
+    const reclamation = await Reclamation.findOne({"_id": req.params.id})
+      .exec();
+    res.status(200).json(reclamation);
+  } catch (e) {
+    res.status(500).json(e.message);
+  }
 }
+
 
 
 // Updated updateOne function to handle file uploads and update form data
@@ -139,7 +141,7 @@ export async function updateOne(req, res) {
     }
 
     const reclamation = await Reclamation.findByIdAndUpdate(
-      req.params.idClient,
+      req.params.idUser,
       updateData,
       { new: true }  // Return the updated document
     );
